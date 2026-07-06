@@ -4,7 +4,7 @@
  * These shapes match the official report format used by BookLooky.com.
  */
 
-/** The 8 LRS content categories. Each is rated 0–5. */
+/** LRS category keys — six Content Intensity + four Story Themes, each rated 0–5. */
 export type OfficialScanCategoryKey =
   | 'violence'
   | 'romance'
@@ -13,7 +13,9 @@ export type OfficialScanCategoryKey =
   | 'language'
   | 'substanceUse'
   | 'lgbtq'
-  | 'fear';
+  | 'fear'
+  | 'sciFi'
+  | 'disability';
 
 /** A quoted transcript passage supporting a category rating. */
 export type OfficialScanExcerpt = {
@@ -69,7 +71,7 @@ export type AgeSource =
   | 'unknown';
 
 /**
- * Flat 8-category score summary (0–5 each) derived from an official report.
+ * Flat score summary (0–5 each) derived from an official report.
  * Shape-compatible with BookLooky's catalog analysis records.
  */
 export interface ContentAnalysis {
@@ -81,6 +83,8 @@ export interface ContentAnalysis {
   substanceUse: number;
   lgbtq: number;
   fear: number;
+  sciFi: number;
+  disability: number;
   /** 0–1 */
   confidence: number;
   reasoning: string;

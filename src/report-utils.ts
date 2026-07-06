@@ -77,6 +77,8 @@ export function buildGrokAnalysisFromReport(
     substanceUse: clampInt0to5(ratings.substanceUse?.rating),
     lgbtq: clampInt0to5(ratings.lgbtq?.rating),
     fear: clampInt0to5(ratings.fear?.rating),
+    sciFi: clampInt0to5(ratings.sciFi?.rating),
+    disability: clampInt0to5(ratings.disability?.rating),
     confidence: clamp01(normalized.confidence),
     reasoning: String(normalized.reasoningSummary || '').trim(),
     minimumAge: normalizeOfficialScanMinimumAge(normalized.minimumAge),

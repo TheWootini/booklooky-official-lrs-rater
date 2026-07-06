@@ -7,7 +7,12 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { rateTranscript } from '../analyzer';
-import { OFFICIAL_SCAN_CATEGORIES, OFFICIAL_SCAN_CATEGORY_LABELS } from '../categories';
+import {
+  OFFICIAL_SCAN_CATEGORY_LABELS,
+  OFFICIAL_SCAN_CONTENT_INTENSITY_KEYS,
+  OFFICIAL_SCAN_STORY_THEME_KEYS,
+  isOfficialScanStoryThemeKey,
+} from '../categories';
 
 type CliArgs = {
   title: string;
@@ -79,9 +84,18 @@ async function main(): Promise<void> {
   });
 
   console.error('\n=== LRS Report ===');
-  for (const cat of OFFICIAL_SCAN_CATEGORIES) {
+  console.error('\nContent Intensity');
+  for (const cat of OFFICIAL_SCAN_CONTENT_INTENSITY_KEYS) {
     const r = report.ratings[cat];
-    console.error(`  ${OFFICIAL_SCAN_CATEGORY_LABELS[cat].padEnd(22)} ${r.rating}/5`);
+    console.error(`  ${OFFICIAL_SCAN_CATEGORY_LABELS[cat].padEnd(28)} ${r.rating}/5`);
+  }
+  console.error('\nStory Themes');
+  for (const cat of OFFICIAL_SCAN_STORY_THEME_KEYS) {
+    const r = report.ratings[cat];
+    const label = isOfficialScanStoryThemeKey(cat)
+      ? `${OFFICIAL_SCAN_CATEGORY_LABELS[cat]} (prominence)`
+      : OFFICIAL_SCAN_CATEGORY_LABELS[cat];
+    console.error(`  ${label.padEnd(28)} ${r.rating}/5`);
   }
   console.error(`  Minimum age: ${report.minimumAge}+  (confidence: ${report.ageRecommendation?.confidence ?? 'n/a'})`);
   console.error(`  Summary: ${report.reasoningSummary}`);

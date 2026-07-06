@@ -4,7 +4,9 @@ The reference implementation of BookLooky's **official transcript-based Looky Ra
 
 Given a full book transcript, it produces an evidence-backed content report:
 
-- **8 LRS category ratings** (0–5): Violence, Love & Romance, Mental Health, Fantasy / Supernatural, Language, Substance Use, LGBTQ+, Fear / Horror
+- **10 LRS category ratings** (0–5) in two groups:
+  - **Content Intensity:** Violence, Love & Romance, Mental Health, Language, Substance Use, Fear / Horror
+  - **Story Themes:** Fantasy / Supernatural, LGBTQ+ Representation, Sci-Fi / Futuristic, Disability & Neurodiversity
 - **Quoted transcript excerpts** justifying every non-zero rating (a non-zero score with no verifiable excerpt is downgraded to 0)
 - **A minimum-age recommendation** (e.g. `10+`) with a five-part, evidence-based justification
 
@@ -17,7 +19,7 @@ This repository implements BookLooky's **official transcript-based rater only**.
 The rater runs three phases over a transcript:
 
 1. **Segment scan** — the transcript is split into ~100k-character overlapping segments. Each segment is scanned once; the model extracts up to 3 short quotes per category with an explanation of why each matters. Category scopes are strictly defined (e.g. `language` means profanity/slurs/explicit wording only — never jargon or wordplay; `lgbtq` means LGBTQ+ representation only — never generic gender-role content).
-2. **Category focus** — for each of the 8 categories, the segments with the strongest signals are re-read in full and the model assigns a whole-book 0–5 rating backed by exactly 5 quoted passages. Deterministic post-processing rules then apply (e.g. if the model's own rationale admits sexual innuendo but scored romance 0, the rating is raised to 1). **Every non-zero rating must have validated excerpt evidence, or it is downgraded to 0.**
+2. **Category focus** — for each of the 10 categories, the segments with the strongest signals are re-read in full and the model assigns a whole-book 0–5 rating backed by exactly 5 quoted passages. Content Intensity categories measure strength/frequency; Story Themes measure plot prominence (not warnings). Deterministic post-processing rules then apply (e.g. if the model's own rationale admits sexual innuendo but scored romance 0, the rating is raised to 1). **Every non-zero rating must have validated excerpt evidence, or it is downgraded to 0.**
 3. **Age recommendation** — with the category ratings locked, a final pass determines a single minimum age using a fixed five-part framework: protagonist age & voice, content intensity (LRS), tone & thematic maturity, comparable titles, and edge cases.
 
 See [docs/LRS-SPEC.md](docs/LRS-SPEC.md) for the category definitions and rating scale.
@@ -43,7 +45,7 @@ GROK_API_KEY=your-key node dist/cli/lrs-scan.js \
 
 The transcript must be plain text (`.txt`). If your source is PDF, DOCX, or EPUB, extract the text first with the tool of your choice.
 
-A full run costs one model call per ~100k-character segment, plus 8 category-focus calls and 1 age-recommendation call.
+A full run costs one model call per ~100k-character segment, plus 10 category-focus calls and 1 age-recommendation call.
 
 ## Library usage
 
@@ -90,7 +92,7 @@ For long books in serverless or resumable environments, the phases are also expo
         "rating": 0,
         "noteWhenZero": "No meaningful results discovered for this rating."
       }
-      // … all 8 categories
+      // … all 10 categories
     },
     "ageRecommendation": {
       "minimumAge": 10,
@@ -101,9 +103,10 @@ For long books in serverless or resumable environments, the phases are also expo
       "reasoningSummary": "…"
     }
   },
-  "grokAnalysis": {                     // flat 0–5 summary of the same ratings
+  "grokAnalysis": {
     "violence": 3, "romance": 1, "mentalHealth": 2, "fantasy": 4,
     "language": 0, "substanceUse": 0, "lgbtq": 0, "fear": 2,
+    "sciFi": 0, "disability": 0,
     "confidence": 0.85, "reasoning": "…", "minimumAge": 10, "ageSource": "ai"
   }
 }

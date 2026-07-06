@@ -10,7 +10,7 @@ import {
   OFFICIAL_SCAN_CATEGORY_FOCUS_MAX_CHARS_PER_CHUNK,
   OFFICIAL_SCAN_DEFAULT_CHUNK_SCAN_CONCURRENCY,
 } from './constants';
-import { OFFICIAL_SCAN_CATEGORIES } from './categories';
+import { OFFICIAL_SCAN_CATEGORIES, isOfficialScanStoryThemeKey } from './categories';
 import type {
   ContentAnalysis,
   OfficialScanCategoryKey,
@@ -48,6 +48,25 @@ const ROMANCE_SIGNAL_SCOPE_CHUNK = `Category "romance" (romantic and sexual cont
 /** Category-focus pass when category === romance. */
 const ROMANCE_FOCUS_SCOPE = `SCOPE for "romance": Rate romantic and sexual themes including flirtation, innuendo, implied sexual tension, double entendres, and euphemistic sexual references. If the transcript evidence shows any such innuendo or implied sexual subtext, rating MUST be at least 1—never 0 when that subtext is present. Reserve 0 only when there is no romantic or sexual content of any kind in the excerpts you evaluated.`;
 
+/** Story themes: score plot prominence, not intensity or appropriateness. */
+const STORY_THEME_FOCUS_SCOPE = `SCOPE for story theme categories (fantasy, lgbtq, sciFi, disability): Rate how CENTRAL this theme is to the plot (0 = not present, 5 = central storyline). This is a presence indicator, NOT content intensity and NOT a warning. A higher score means the theme is more central — not that the book is less appropriate.`;
+
+const FANTASY_FOCUS_SCOPE = `SCOPE for "fantasy": Magic, supernatural elements, witches/wizards, magical creatures, or alternate fantasy worlds. Do NOT score science fiction here (space travel, advanced technology without magic) — use sciFi instead.`;
+
+const SCI_FI_FOCUS_SCOPE = `SCOPE for "sciFi": Science fiction, futuristic or speculative technology, space travel, aliens, robots, dystopian futures, and time travel grounded in science (not magic). Do NOT score pure fantasy/magic here — use fantasy instead. A book may score in both only if it genuinely blends both.`;
+
+const DISABILITY_FOCUS_SCOPE = `SCOPE for "disability": Physical disability, chronic illness, neurodiversity (e.g. autism, ADHD), Deaf/HoH, blind/visually impaired representation. Score prominence only — not a warning. Do NOT conflate with mental health intensity alone unless disability/neurodiversity representation is clearly present.`;
+
+const FANTASY_SCI_FI_SCOPE_CHUNK = `Categories "fantasy" and "sciFi" (story themes — prominence only):
+- "fantasy": magic, supernatural, witches/wizards, magical creatures, enchanted worlds.
+- "sciFi": futuristic technology, space travel, aliens, robots, dystopian tech, speculative science — NOT magic-based.
+- A book may have signals in both if it genuinely blends science fantasy.`;
+
+const DISABILITY_SIGNAL_SCOPE_CHUNK = `Category "disability" (story theme — prominence only):
+- Use "disability" for clear disability, chronic illness, or neurodiversity representation (physical disability, autism, ADHD, Deaf/HoH, blind/VI, etc.).
+- Score based on how central the representation is — not as a warning.
+- Do NOT use for generic mental health struggles alone unless disability/neurodiversity is clearly present.`;
+
 export type OfficialScanChunkSignal = {
   quote: string;
   why: string;
@@ -82,11 +101,51 @@ function emptyRatings(): Record<OfficialScanCategoryKey, OfficialScanCategoryRes
     substanceUse: { rating: 0, noteWhenZero: 'No meaningful results discovered for this rating.' },
     lgbtq: { rating: 0, noteWhenZero: 'No meaningful results discovered for this rating.' },
     fear: { rating: 0, noteWhenZero: 'No meaningful results discovered for this rating.' },
+    sciFi: { rating: 0, noteWhenZero: 'No meaningful results discovered for this rating.' },
+    disability: { rating: 0, noteWhenZero: 'No meaningful results discovered for this rating.' },
   };
 }
 
 async function scanTranscriptChunk(params: { chunkIndex: number; text: string }): Promise<OfficialScanChunkScanResult> {
-  const prompt = `You are BookLooky’s official paid transcript rater (LRS). You will be given ONE segment of a full book transcript.\n\nTask:\n- For each category, if this segment contains clear evidence, extract up to 3 short quotes (1-3 sentences each) and explain WHY they matter.\n- Be conservative and context-aware.\n- If a category is not clearly evidenced in this segment, return an empty array for that category.\n\n${GENDER_SIGNAL_SCOPE_CHUNK}\n\n${LANGUAGE_SIGNAL_SCOPE_CHUNK}\n\n${ROMANCE_SIGNAL_SCOPE_CHUNK}\n\nReturn ONLY JSON in this exact shape:\n{\n  \"chunkIndex\": ${params.chunkIndex},\n  \"signals\": {\n    \"violence\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"romance\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"mentalHealth\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"fantasy\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"language\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"substanceUse\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"lgbtq\": [{\"quote\":\"...\",\"why\":\"...\"}],\n    \"fear\": [{\"quote\":\"...\",\"why\":\"...\"}]\n  },\n  \"notes\": \"optional\"\n}\n\nCHUNK TEXT:\n${params.text}`;
+  const prompt = `You are BookLooky's official paid transcript rater (LRS). You will be given ONE segment of a full book transcript.
+
+Task:
+- For each category, if this segment contains clear evidence, extract up to 3 short quotes (1-3 sentences each) and explain WHY they matter.
+- Content Intensity categories (violence, romance, mentalHealth, language, substanceUse, fear): evidence of how strong or frequent the content is.
+- Story Theme categories (fantasy, lgbtq, sciFi, disability): evidence of how central the theme is to the plot — NOT a warning.
+- Be conservative and context-aware.
+- If a category is not clearly evidenced in this segment, return an empty array for that category.
+
+${GENDER_SIGNAL_SCOPE_CHUNK}
+
+${LANGUAGE_SIGNAL_SCOPE_CHUNK}
+
+${ROMANCE_SIGNAL_SCOPE_CHUNK}
+
+${FANTASY_SCI_FI_SCOPE_CHUNK}
+
+${DISABILITY_SIGNAL_SCOPE_CHUNK}
+
+Return ONLY JSON in this exact shape:
+{
+  "chunkIndex": ${params.chunkIndex},
+  "signals": {
+    "violence": [{"quote":"...","why":"..."}],
+    "romance": [{"quote":"...","why":"..."}],
+    "mentalHealth": [{"quote":"...","why":"..."}],
+    "fantasy": [{"quote":"...","why":"..."}],
+    "language": [{"quote":"...","why":"..."}],
+    "substanceUse": [{"quote":"...","why":"..."}],
+    "lgbtq": [{"quote":"...","why":"..."}],
+    "fear": [{"quote":"...","why":"..."}],
+    "sciFi": [{"quote":"...","why":"..."}],
+    "disability": [{"quote":"...","why":"..."}]
+  },
+  "notes": "optional"
+}
+
+CHUNK TEXT:
+${params.text}`;
 
   const res = await grokJson<OfficialScanChunkScanResult>(prompt, { maxTokens: 1600, temperature: 0.2, timeoutMs: 120000 });
 
@@ -245,9 +304,13 @@ async function extractForCategory(params: {
   if (params.category === 'lgbtq') focusExtras.push(GENDER_FOCUS_SCOPE);
   if (params.category === 'language') focusExtras.push(LANGUAGE_FOCUS_SCOPE);
   if (params.category === 'romance') focusExtras.push(ROMANCE_FOCUS_SCOPE);
+  if (isOfficialScanStoryThemeKey(params.category)) focusExtras.push(STORY_THEME_FOCUS_SCOPE);
+  if (params.category === 'fantasy') focusExtras.push(FANTASY_FOCUS_SCOPE);
+  if (params.category === 'sciFi') focusExtras.push(SCI_FI_FOCUS_SCOPE);
+  if (params.category === 'disability') focusExtras.push(DISABILITY_FOCUS_SCOPE);
   const scopeBlock = focusExtras.length > 0 ? `\n${focusExtras.join('\n\n')}\n` : '';
 
-  const prompt = `You are BookLooky’s official paid transcript rater (LRS). Focus ONLY on category: ${params.category}.\n\nYou will be given a few parts of the transcript (labeled TRANSCRIPT PART n — this is an internal sequence number, not a chapter). Your job:\n- Assign an integer rating 0-5 for THIS category for the whole book, based ONLY on the evidence present here.\n- If rating > 0, extract EXACTLY 5 passages (short excerpts, 1-4 sentences each) that justify the rating.\n- Each excerpt must include enough surrounding context to avoid false positives.\n- Each excerpt object MUST include both "excerpt" and "explanation" as non-empty strings; omitting either will invalidate the evidence.\n- If rating == 0, return excerpts: [] and explain that no meaningful results were found.${scopeBlock}\nReturn ONLY JSON:\n{\n  \"category\": \"${params.category}\",\n  \"rating\": 0,\n  \"rationale\": \"...\",\n  \"excerpts\": [\n    {\"excerpt\":\"...\",\"explanation\":\"...\",\"locationHint\":\"Chapter 4\"}\n  ]\n}\n\nFor each excerpt, locationHint is optional: use a chapter or section label if the quoted text or nearby lines name it (e.g. \"Ch. 12\", \"Epilogue\"). Never use the word \"chunk\". Omit locationHint if the passage does not indicate chapter/section.\n\nTRANSCRIPT EVIDENCE:\n${joined}`;
+  const prompt = `You are BookLooky's official paid transcript rater (LRS). Focus ONLY on category: ${params.category}.\n\nYou will be given a few parts of the transcript (labeled TRANSCRIPT PART n — this is an internal sequence number, not a chapter). Your job:\n- Assign an integer rating 0-5 for THIS category for the whole book, based ONLY on the evidence present here.\n- If rating > 0, extract EXACTLY 5 passages (short excerpts, 1-4 sentences each) that justify the rating.\n- Each excerpt must include enough surrounding context to avoid false positives.\n- Each excerpt object MUST include both "excerpt" and "explanation" as non-empty strings; omitting either will invalidate the evidence.\n- If rating == 0, return excerpts: [] and explain that no meaningful results were found.${scopeBlock}\nReturn ONLY JSON:\n{\n  \"category\": \"${params.category}\",\n  \"rating\": 0,\n  \"rationale\": \"...\",\n  \"excerpts\": [\n    {\"excerpt\":\"...\",\"explanation\":\"...\",\"locationHint\":\"Chapter 4\"}\n  ]\n}\n\nFor each excerpt, locationHint is optional: use a chapter or section label if the quoted text or nearby lines name it (e.g. \"Ch. 12\", \"Epilogue\"). Never use the word \"chunk\". Omit locationHint if the passage does not indicate chapter/section.\n\nTRANSCRIPT EVIDENCE:\n${joined}`;
 
   const res = await grokJson<any>(prompt, { maxTokens: 2500, temperature: 0.2, timeoutMs: 70000 });
   const rationaleText = String(res.rationale || '').trim();
@@ -293,16 +356,9 @@ export async function finalizeOfficialScanFromChunkScans(params: {
     }
   }
 
-  const candidatesByCategory: Record<OfficialScanCategoryKey, Map<number, number>> = {
-    violence: new Map(),
-    romance: new Map(),
-    mentalHealth: new Map(),
-    fantasy: new Map(),
-    language: new Map(),
-    substanceUse: new Map(),
-    lgbtq: new Map(),
-    fear: new Map(),
-  };
+  const candidatesByCategory = Object.fromEntries(
+    OFFICIAL_SCAN_CATEGORIES.map((cat) => [cat, new Map<number, number>()])
+  ) as Record<OfficialScanCategoryKey, Map<number, number>>;
 
   for (const scan of scansSorted) {
     for (const cat of OFFICIAL_SCAN_CATEGORIES) {
@@ -394,6 +450,8 @@ export async function finalizeOfficialScanFromChunkScans(params: {
     substanceUse: clampInt0to5(ratings.substanceUse.rating),
     lgbtq: clampInt0to5(ratings.lgbtq.rating),
     fear: clampInt0to5(ratings.fear.rating),
+    sciFi: clampInt0to5(ratings.sciFi.rating),
+    disability: clampInt0to5(ratings.disability.rating),
     confidence,
     reasoning: report.reasoningSummary,
     minimumAge,
@@ -449,6 +507,10 @@ export async function extractAdditionalExamplesForCategory(params: {
   if (params.category === 'lgbtq') focusExtras.push(GENDER_FOCUS_SCOPE);
   if (params.category === 'language') focusExtras.push(LANGUAGE_FOCUS_SCOPE);
   if (params.category === 'romance') focusExtras.push(ROMANCE_FOCUS_SCOPE);
+  if (isOfficialScanStoryThemeKey(params.category)) focusExtras.push(STORY_THEME_FOCUS_SCOPE);
+  if (params.category === 'fantasy') focusExtras.push(FANTASY_FOCUS_SCOPE);
+  if (params.category === 'sciFi') focusExtras.push(SCI_FI_FOCUS_SCOPE);
+  if (params.category === 'disability') focusExtras.push(DISABILITY_FOCUS_SCOPE);
   const scopeBlock = focusExtras.length > 0 ? `\n${focusExtras.join('\n\n')}\n` : '';
 
   const existingBlock =
