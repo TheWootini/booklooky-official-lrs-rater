@@ -3,7 +3,7 @@
 The official reference implementation of BookLooky’s transcript-based **Looky Rating System (LRS)** rater — the engine behind official BookLooky scans.
 
 Given a full book transcript, it produces an evidence-backed content report with:
-- 6 LRS category ratings (0–5)
+- 6 LRS category ratings (0–5) & 4 Book Theme ratings (0-5)
   - **Content Intensity**: Violence, Love & Romance, Mental Health, Language, Substance Use, Fear / Horror
   - **Story Themes**: Fantasy / Supernatural, LGBTQ+ Representation, Sci-Fi / Futuristic, Disability & Neurodiversity
 - Quoted transcript excerpts justifying every non-zero rating
