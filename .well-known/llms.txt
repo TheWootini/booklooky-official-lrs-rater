@@ -1,0 +1,41 @@
+# BookLooky Official LRS Rater
+
+> Open-source reference implementation of BookLooky's official transcript-based Looky Rating System (LRS) rater. Given a full book transcript, it produces evidence-backed 0–5 ratings across 10 categories plus a minimum-age recommendation.
+
+This repository is the engine behind BookLooky Official Scan. It rates **full transcripts only**. It does **not** include the metadata-based quick-scan used on booklooky.com search. Self-run ratings are not official BookLooky-certified ratings.
+
+Important notes for agents:
+
+- Requires Node.js 18+ and an xAI API key (`GROK_API_KEY`)
+- Story theme scores (fantasy, LGBTQ+, sci-fi, disability) measure **plot prominence**, not warnings
+- Every non-zero category score must be backed by quoted transcript excerpts or it is downgraded to 0
+- Package name: `@booklooky/official-lrs-rater`
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/README.md): Install, CLI, library usage, env vars, output shape
+- [LRS specification](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/docs/LRS-SPEC.md): Category definitions, 0–5 scales, boundary rules, age framework
+- [Full LLM context](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/llms-full.txt): Single-file dump of README + LRS-SPEC for agents that prefer one fetch
+- [Well-known mirror](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/.well-known/llms.txt): Same index at `/.well-known/llms.txt` for agents that check RFC 8615-style paths
+
+## Source
+
+- [Library entry](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/index.ts): Public exports (`rateTranscript`, categories, transcript helpers)
+- [CLI](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/cli/lrs-scan.ts): `lrs-scan` command-line entry
+- [Analyzer](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/analyzer.ts): Segment scan → category focus → finalize pipeline
+- [Scoring rules](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/scoring-rules.ts): Deterministic post-processing (e.g. innuendo → romance)
+- [Age recommendation](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/age-recommendation.ts): Five-part minimum-age pass
+- [Grok client](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/grok-client.ts): xAI chat-completions JSON helper
+
+## Product context
+
+- [BookLooky Official Scan](https://booklooky.com/official-scan/upload): Where certified full-text scans run in production
+- [How LRS works](https://booklooky.com/how-it-works): Public explanation of AI estimate vs official full-text scan
+- [For authors / LRS badge](https://booklooky.com/for-authors): Official badge program that uses this rater
+- [BookLooky site llms.txt](https://booklooky.com/llms.txt): Product-site LLM index (separate from this open-source package)
+
+## Optional
+
+- [LICENSE (MIT)](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/LICENSE): Code license; trademarks are not licensed
+- [GitHub repository](https://github.com/TheWootini/booklooky-official-lrs-rater): Issues, source, releases
+- [llms.txt specification](https://llmstxt.org/): Format this file follows

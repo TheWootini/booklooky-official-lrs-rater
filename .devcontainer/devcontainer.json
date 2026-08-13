@@ -1,0 +1,29 @@
+{
+  "name": "BookLooky Official LRS Rater",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
+
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "postCreateCommand": "npm install && npm run build",
+
+  "remoteEnv": {
+    "GROK_API_KEY": "${localEnv:GROK_API_KEY}",
+    "GROK_MODEL_REASONING": "${localEnv:GROK_MODEL_REASONING}"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true
+      }
+    }
+  },
+
+  "features": {}
+}

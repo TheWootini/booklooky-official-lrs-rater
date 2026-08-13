@@ -1,0 +1,232 @@
+# BookLooky Official LRS Rater — full LLM context
+
+> Single-file companion to llms.txt. Concatenates the project README and LRS specification so agents can ingest the package without following multiple links.
+
+Source: https://github.com/TheWootini/booklooky-official-lrs-rater
+Index: https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/llms.txt
+
+---
+
+# BookLooky Official LRS Rater
+
+The reference implementation of BookLooky's **official transcript-based Looky Rating System (LRS) rater** — the engine behind [BookLooky Official Scan](https://booklooky.com/official-scan/upload).
+
+Given a full book transcript, it produces an evidence-backed content report:
+
+- **10 LRS category ratings** (0–5) in two groups:
+  - **Content Intensity:** Violence, Love & Romance, Mental Health, Language, Substance Use, Fear / Horror
+  - **Story Themes:** Fantasy / Supernatural, LGBTQ+ Representation, Sci-Fi / Futuristic, Disability & Neurodiversity
+- **Quoted transcript excerpts** justifying every non-zero rating (a non-zero score with no verifiable excerpt is downgraded to 0)
+- **A minimum-age recommendation** (e.g. `10+`) with a five-part, evidence-based justification
+
+## Scope
+
+This repository implements BookLooky's **official transcript-based rater only**. It does not include the metadata-based quick-scan used on booklooky.com when users search a title and click Scan Now — that is a separate, private system. Official BookLooky-certified ratings and LRS badges are issued only through [booklooky.com](https://booklooky.com).
+
+## How it works
+
+The rater runs three phases over a transcript:
+
+1. **Segment scan** — the transcript is split into ~100k-character overlapping segments. Each segment is scanned once; the model extracts up to 3 short quotes per category with an explanation of why each matters. Category scopes are strictly defined (e.g. `language` means profanity/slurs/explicit wording only — never jargon or wordplay; `lgbtq` means LGBTQ+ representation only — never generic gender-role content).
+2. **Category focus** — for each of the 10 categories, the segments with the strongest signals are re-read in full and the model assigns a whole-book 0–5 rating backed by exactly 5 quoted passages. Content Intensity categories measure strength/frequency; Story Themes measure plot prominence (not warnings). Deterministic post-processing rules then apply (e.g. if the model's own rationale admits sexual innuendo but scored romance 0, the rating is raised to 1). **Every non-zero rating must have validated excerpt evidence, or it is downgraded to 0.**
+3. **Age recommendation** — with the category ratings locked, a final pass determines a single minimum age using a fixed five-part framework: protagonist age & voice, content intensity (LRS), tone & thematic maturity, comparable titles, and edge cases.
+
+See [docs/LRS-SPEC.md](docs/LRS-SPEC.md) for the category definitions and rating scale.
+
+## Requirements
+
+- Node.js 18+
+- An [xAI API key](https://docs.x.ai/) (`GROK_API_KEY`)
+
+## CLI usage
+
+```bash
+npm install
+npm run build
+
+GROK_API_KEY=your-key node dist/cli/lrs-scan.js \
+  --title "Book Title" \
+  --author "Author Name" \
+  --isbn 9781234567890 \
+  --out report.json \
+  transcript.txt
+```
+
+The transcript must be plain text (`.txt`). If your source is PDF, DOCX, or EPUB, extract the text first with the tool of your choice.
+
+A full run costs one model call per ~100k-character segment, plus 10 category-focus calls and 1 age-recommendation call.
+
+## Library usage
+
+```ts
+import { rateTranscript } from '@booklooky/official-lrs-rater';
+
+const { report, grokAnalysis } = await rateTranscript({
+  title: 'Book Title',
+  author: 'Author Name',
+  transcript: fullBookText,
+});
+
+console.log(report.ratings.violence.rating);       // 0–5
+console.log(report.ratings.violence.excerpts);     // quoted evidence
+console.log(report.minimumAge);                    // e.g. 10
+console.log(report.ageRecommendation?.reasons);    // five-part justification
+```
+
+For long books in serverless or resumable environments, the phases are also exported individually: `chunkTranscript`, `runOfficialScanChunkScanPass` (with a time budget and per-result callback for persistence), and `finalizeOfficialScanFromChunkScans`.
+
+## Configuration
+
+| Environment variable | Purpose | Default |
+|---|---|---|
+| `GROK_API_KEY` | xAI API key (required) | — |
+| `GROK_MODEL_REASONING` | Model used for all passes | `grok-4.3` |
+
+## Output shape
+
+```jsonc
+{
+  "report": {
+    "minimumAge": 10,
+    "confidence": 0.85,                 // 0–1
+    "reasoningSummary": "…",
+    "ratings": {
+      "violence": {
+        "rating": 3,
+        "excerpts": [
+          { "excerpt": "…", "explanation": "…", "locationHint": "Chapter 4" }
+        ]
+      },
+      "language": {
+        "rating": 0,
+        "noteWhenZero": "No meaningful results discovered for this rating."
+      }
+      // … all 10 categories
+    },
+    "ageRecommendation": {
+      "minimumAge": 10,
+      "marketCategory": "Middle Grade (10+)",
+      "confidence": "high",
+      "reasons": [ { "title": "Protagonist age & voice", "text": "…" } /* ×5 */ ],
+      "detailedJustification": "…",
+      "reasoningSummary": "…"
+    }
+  },
+  "grokAnalysis": {
+    "violence": 3, "romance": 1, "mentalHealth": 2, "fantasy": 4,
+    "language": 0, "substanceUse": 0, "lgbtq": 0, "fear": 2,
+    "sciFi": 0, "disability": 0,
+    "confidence": 0.85, "reasoning": "…", "minimumAge": 10, "ageSource": "ai"
+  }
+}
+```
+
+## LLM discovery files
+
+Agents and coding assistants can start here:
+
+| File | Purpose |
+|---|---|
+| [`/llms.txt`](llms.txt) | Curated index (canonical [llms.txt](https://llmstxt.org/) format) |
+| [`/llms-full.txt`](llms-full.txt) | README + LRS-SPEC in one fetch |
+| [`/.well-known/llms.txt`](.well-known/llms.txt) | Mirror for agents that check RFC 8615-style paths |
+| [`/.well-known/ai.json`](.well-known/ai.json) | Machine-readable discovery pointers |
+
+On GitHub these are available as raw files under `main`. If you later host this package on a custom domain, serve the same paths from the origin root as `text/plain` / `application/json`.
+
+## Contributing
+
+Pull requests are welcome. This repository uses a [Contributor License Agreement](CLA.md). The CLA Assistant GitHub Action will comment on your PR with signing instructions.
+
+## Trademark
+
+"BookLooky", "Looky Rating System", "LRS", and the Certified LRS Badge are trademarks of BookLooky. This code is MIT-licensed; the trademarks are not. Ratings produced by running this tool yourself are not official BookLooky ratings.
+
+## License
+
+[MIT](LICENSE)
+
+
+---
+
+# The Looky Rating System (LRS)
+
+The Looky Rating System rates books across **10 categories** on a **0–5 scale**, split into two groups:
+
+- **Content Intensity** (6 categories) — how strong or frequent sensitive content is
+- **Story Themes** (4 categories) — what the book is about; prominence indicators, not warnings
+
+Scores measure how present a theme is in the text — not a judgment of quality. Story theme scores describe plot centrality, not appropriateness.
+
+## The scale
+
+### Content Intensity (violence, romance, mental health, language, substance use, fear)
+
+| Score | Meaning |
+|---|---|
+| 0 | None — the theme is not present |
+| 1 | Very low — brief, mild references |
+| 2 | Low — present but light |
+| 3 | Medium — a recurring or notable element |
+| 4 | Moderate–high — a significant, sustained element |
+| 5 | High — intense or frequent throughout |
+
+### Story Themes (fantasy, LGBTQ+ representation, sci-fi, disability)
+
+| Score | Meaning |
+|---|---|
+| 0 | Not present |
+| 1 | Brief mention |
+| 2 | Background |
+| 3 | Recurring theme |
+| 4 | Major storyline |
+| 5 | Central storyline |
+
+A higher story-theme score means the theme is more central to the plot — **not** a warning. A score is never lowered because the book targets young readers; intensity and audience are assessed separately (see [Age recommendation](#age-recommendation)).
+
+## Content Intensity categories
+
+| Key | Label | Covers |
+|---|---|---|
+| `violence` | Violence | Physical conflict, fighting, injury, death, peril, graphic descriptions |
+| `romance` | Love & Romance | Romantic feelings and relationships, kissing, sexual content — including flirtation, innuendo, implied sexual tension, double entendres, and euphemistic references |
+| `mentalHealth` | Mental Health | Grief, anxiety, depression, trauma, self-harm, suicide, psychological struggle |
+| `language` | Language | Profanity and curse words; slurs or hateful epithets; sexually explicit or crude wording. **Not** jargon, puns, wordplay, invented terms, or formal vocabulary |
+| `substanceUse` | Substance Use | Alcohol, drugs, smoking — use, abuse, and depiction |
+| `fear` | Fear / Horror | Suspense, horror, dread, frightening imagery |
+
+## Story Theme categories
+
+| Key | Label | Covers |
+|---|---|---|
+| `fantasy` | Fantasy / Supernatural | Magic, supernatural elements, secondary worlds, magical creatures — **not** science fiction |
+| `lgbtq` | LGBTQ+ Representation | LGBTQ+ characters, relationships, or identity themes — presence indicator, **not** a warning. **Not** generic gender-role content without a queer through-line |
+| `sciFi` | Sci-Fi / Futuristic | Futuristic technology, space travel, aliens, robots, dystopian tech — **not** magic-based fantasy |
+| `disability` | Disability & Neurodiversity | Disability, chronic illness, or neurodiversity representation — prominence only, **not** a warning |
+
+### Category boundary rules
+
+- **Innuendo routes to `romance`, not `language`.** Implied sexual subtext belongs to `romance` even when no crude word appears. `language` only triggers on profanity, slurs, or explicit wording.
+- **`lgbtq` requires an actual LGBTQ+ through-line.** Generic gender-role banter without queer elements scores 0.
+- **`fantasy` vs `sciFi`.** Magic and supernatural → `fantasy`. Speculative science and futuristic tech → `sciFi`. A book may score in both if it genuinely blends both.
+- **`disability` vs `mentalHealth`.** Score `disability` when disability/neurodiversity representation is present; do not conflate with general mental-health intensity alone.
+
+## Evidence requirements (official transcript scan)
+
+The official rater reads the full book text and enforces:
+
+1. **Every non-zero rating must be backed by quoted transcript excerpts** (up to 5 per category), each with an explanation of why it matters. If no validated excerpt supports a positive rating, the rating is downgraded to 0.
+2. **Zero ratings carry an explicit note** stating that no meaningful results were discovered.
+3. **Excerpts are deduplicated** and kept short (1–4 sentences) with enough surrounding context to avoid false positives.
+
+## Age recommendation
+
+After all 10 category scores are locked, a single **minimum age** (a whole number, e.g. `10` meaning 10+; range 0–25) is determined using a five-part framework:
+
+1. **Protagonist age & voice**
+2. **Content intensity (LRS)** — tied explicitly to the locked Content Intensity scores
+3. **Tone & thematic maturity**
+4. **Comparable titles**
+5. **Edge cases & author notes**
+
+Each report includes all five reasons, a detailed justification, a confidence label (`high` / `medium` / `low`), and an executive summary.

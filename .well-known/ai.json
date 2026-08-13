@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "name": "BookLooky Official LRS Rater",
+  "type": "open_source_library",
+  "description": "Official transcript-based Looky Rating System (LRS) rater. Produces evidence-backed 0–5 content ratings and a minimum-age recommendation from a full book transcript.",
+  "repository": "https://github.com/TheWootini/booklooky-official-lrs-rater",
+  "package": "@booklooky/official-lrs-rater",
+  "license": "MIT",
+  "requires": {
+    "node": ">=18",
+    "env": ["GROK_API_KEY"]
+  },
+  "discovery_urls": {
+    "llms_txt": "https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/llms.txt",
+    "llms_full_txt": "https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/llms-full.txt",
+    "well_known_llms_txt": "https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/.well-known/llms.txt",
+    "readme": "https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/README.md",
+    "lrs_spec": "https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/docs/LRS-SPEC.md",
+    "product_site_llms_txt": "https://booklooky.com/llms.txt"
+  },
+  "not_included": [
+    "MCP server",
+    "HTTP API",
+    "metadata quick-scan used on booklooky.com search",
+    "official BookLooky certification (issued only via booklooky.com)"
+  ]
+}
