@@ -7,6 +7,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { rateTranscript } from '../analyzer';
+import { GROK_MODEL_REASONING } from '../grok-client';
 import {
   OFFICIAL_SCAN_CATEGORY_LABELS,
   OFFICIAL_SCAN_CONTENT_INTENSITY_KEYS,
@@ -28,7 +29,7 @@ function printUsageAndExit(message?: string): never {
     'Usage: lrs-scan --title "Book Title" --author "Author Name" [--isbn 9781234567890] [--out report.json] transcript.txt\n\n' +
       'Environment:\n' +
       '  GROK_API_KEY           xAI API key (required)\n' +
-      '  GROK_MODEL_REASONING   Model override (default: grok-4.3)'
+      `  GROK_MODEL_REASONING   Model override (default: ${GROK_MODEL_REASONING})`
   );
   process.exit(1);
 }
@@ -78,6 +79,7 @@ async function main(): Promise<void> {
     author: args.author,
     isbn: args.isbn,
     transcript,
+    model: process.env.GROK_MODEL_REASONING || undefined,
     onProgress: (done, total) => {
       console.error(`  scanned segment ${done}/${total}`);
     },

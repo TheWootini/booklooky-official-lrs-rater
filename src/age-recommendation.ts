@@ -1,10 +1,20 @@
 import { OFFICIAL_SCAN_CATEGORY_LABELS } from './categories';
+import {
+  LRS_AGE_BANDS,
+  LRS_MOVIE_RATING_BY_AGE,
+  formatLrsAgeDisplay,
+  lrsAgeBandForAge,
+  normalizeLrsMinimumAge,
+  type LrsAgeBand,
+} from './age-bands';
 import type {
   OfficialScanAgeRecommendation,
   OfficialScanAgeReason,
   OfficialScanCategoryKey,
   OfficialScanReport,
 } from './types';
+
+const CATEGORY_LABELS: Record<OfficialScanCategoryKey, string> = OFFICIAL_SCAN_CATEGORY_LABELS;
 
 export const OFFICIAL_SCAN_AGE_REASON_TITLES = [
   'Protagonist age & voice',
@@ -16,12 +26,25 @@ export const OFFICIAL_SCAN_AGE_REASON_TITLES = [
 
 const VOICE_SAMPLE_MAX_CHARS = 1500;
 
-/** Flexible single minimum age (0–25). No 4/8/13/18 bucket lock. */
-export function normalizeOfficialScanMinimumAge(value: unknown, fallback = 8): number {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return fallback;
-  const rounded = Math.ceil(n);
-  return Math.max(0, Math.min(rounded, 25));
+export const OFFICIAL_SCAN_AGE_BANDS = LRS_AGE_BANDS;
+export type OfficialScanAgeBand = LrsAgeBand;
+/** @deprecated Use LRS_AGE_BAND_LABELS / OFFICIAL_SCAN_AGE_BANDS */
+export const OFFICIAL_SCAN_MOVIE_RATING_BY_AGE = LRS_MOVIE_RATING_BY_AGE;
+
+export function normalizeOfficialScanMinimumAge(value: unknown, fallback: OfficialScanAgeBand = 8): number {
+  return normalizeLrsMinimumAge(value, fallback);
+}
+
+export function officialScanAgeBandForAge(age: unknown) {
+  return lrsAgeBandForAge(age);
+}
+
+/** @deprecated Use officialScanAgeBandForAge */
+export const officialScanMovieRatingForAge = lrsAgeBandForAge;
+
+/** e.g. "13+" */
+export function formatOfficialScanAgeDisplay(age: unknown): string {
+  return formatLrsAgeDisplay(age);
 }
 
 export function confidenceLabelToScore(label: unknown): number {
@@ -58,15 +81,15 @@ export function normalizeAgeRecommendation(
     };
   });
 
-  const minimumAge = normalizeOfficialScanMinimumAge(raw?.minimumAge);
+  const band = lrsAgeBandForAge(raw?.minimumAge);
   const reasoningSummary =
     String(raw?.reasoningSummary || '').trim() ||
     String(fallbackSummary || '').trim() ||
     'Age recommendation generated from transcript evidence and LRS ratings.';
 
   return {
-    minimumAge,
-    marketCategory: String(raw?.marketCategory || '').trim() || 'General audience',
+    minimumAge: band.minimumAge,
+    marketCategory: band.marketCategory,
     confidence: (['high', 'medium', 'low'] as const).includes(raw?.confidence as 'high' | 'medium' | 'low')
       ? (raw!.confidence as 'high' | 'medium' | 'low')
       : confidenceScoreToLabel(confidenceLabelToScore(raw?.confidence)),
@@ -124,7 +147,7 @@ export function buildOfficialScanAgeRecommendationPrompt(params: {
 }): string {
   const lrsBlock = params.reconciled
     .map((f) => {
-      const label = OFFICIAL_SCAN_CATEGORY_LABELS[f.category] || f.category;
+      const label = CATEGORY_LABELS[f.category] || f.category;
       const excerptLines =
         f.rating > 0 && f.excerpts.length > 0
           ? f.excerpts
@@ -146,11 +169,19 @@ export function buildOfficialScanAgeRecommendationPrompt(params: {
 
   return `You are an expert literature analyst and publishing consultant for BookLooky Official Scan.
 
-Determine the official age recommendation using industry norms (publishers, librarians, Common Sense Media-style guidance).
+Determine the official minimum age recommendation using BookLooky age bands only (not movie ratings).
 
 IMPORTANT:
 - The LRS category scores below are FINAL (already verified against the transcript). Do NOT re-score or contradict them.
-- Recommend a single minimum age: the youngest appropriate reader as a whole number (e.g. 10 means 10+). Use 0–12 granularly for board/picture/early readers when warranted. Do NOT provide a maximum age or upper bound.
+- Recommend exactly one band. Use ONLY minimumAge values:
+  - 1 = 1+: baby, board, tactile, cloth, and wordless or very-few-words picture books. Ages 0, 1, 2, and 3 all become 1 — never output 0, 2, or 3.
+  - 4 = 4+: typical picture books and early readers with a real story and more than a few words.
+  - 8 = 8+: elementary / middle grade
+  - 13 = 13+: teen / young adult
+  - 18 = 18+: adult / mature
+- If you are between 8 and 13, round UP (a 12-year-old floor is 13+, not 12+).
+- Do NOT provide a maximum age or upper bound.
+- marketCategory MUST be exactly one of: "1+", "4+", "8+", "13+", "18+" (must match minimumAge).
 - Apply this decision framework IN ORDER:
   1) Protagonist age & narrative voice (kids often read up 2–3 years)
   2) Content intensity — tie explicitly to the locked LRS scores
@@ -162,8 +193,8 @@ IMPORTANT:
 
 Return ONLY JSON:
 {
-  "minimumAge": 12,
-  "marketCategory": "Young Adult (12+)",
+  "minimumAge": 13,
+  "marketCategory": "13+",
   "confidence": "high",
   "reasons": [
     { "title": "Protagonist age & voice", "text": "..." },

@@ -106,7 +106,11 @@ function emptyRatings(): Record<OfficialScanCategoryKey, OfficialScanCategoryRes
   };
 }
 
-async function scanTranscriptChunk(params: { chunkIndex: number; text: string }): Promise<OfficialScanChunkScanResult> {
+async function scanTranscriptChunk(params: {
+  chunkIndex: number;
+  text: string;
+  model?: string;
+}): Promise<OfficialScanChunkScanResult> {
   const prompt = `You are BookLooky's official paid transcript rater (LRS). You will be given ONE segment of a full book transcript.
 
 Task:
@@ -147,7 +151,12 @@ Return ONLY JSON in this exact shape:
 CHUNK TEXT:
 ${params.text}`;
 
-  const res = await grokJson<OfficialScanChunkScanResult>(prompt, { maxTokens: 1600, temperature: 0.2, timeoutMs: 120000 });
+  const res = await grokJson<OfficialScanChunkScanResult>(prompt, {
+    maxTokens: 1600,
+    temperature: 0.2,
+    timeoutMs: 120000,
+    model: params.model,
+  });
 
   const signals = {} as Record<OfficialScanCategoryKey, OfficialScanChunkSignal[]>;
   for (const k of OFFICIAL_SCAN_CATEGORIES) {
@@ -175,6 +184,7 @@ export async function runOfficialScanChunkScanPass(params: {
   timeBudgetMs: number;
   concurrency: number;
   onEach: (result: OfficialScanChunkScanResult) => Promise<void>;
+  model?: string;
 }): Promise<{ scannedThisPass: number }> {
   const pending = params.chunks.filter((c) => !params.completedChunkIndexes.has(c.chunkIndex));
   let scannedThisPass = 0;
@@ -186,7 +196,11 @@ export async function runOfficialScanChunkScanPass(params: {
     const wave = pending.slice(i, i + params.concurrency);
     i += params.concurrency;
     await mapLimit(wave, params.concurrency, async (c) => {
-      const r = await scanTranscriptChunk({ chunkIndex: c.chunkIndex, text: c.text });
+      const r = await scanTranscriptChunk({
+        chunkIndex: c.chunkIndex,
+        text: c.text,
+        model: params.model,
+      });
       await params.onEach(r);
       scannedThisPass++;
     });
@@ -294,6 +308,7 @@ async function extractForCategory(params: {
   category: OfficialScanCategoryKey;
   candidateChunkIndexes: number[];
   chunks: Array<{ chunkIndex: number; text: string }>;
+  model?: string;
 }): Promise<CategoryFocusedResult> {
   const chosen = params.chunks.filter((c) => params.candidateChunkIndexes.includes(c.chunkIndex)).slice(0, 3);
   const joined = chosen
@@ -312,7 +327,12 @@ async function extractForCategory(params: {
 
   const prompt = `You are BookLooky's official paid transcript rater (LRS). Focus ONLY on category: ${params.category}.\n\nYou will be given a few parts of the transcript (labeled TRANSCRIPT PART n — this is an internal sequence number, not a chapter). Your job:\n- Assign an integer rating 0-5 for THIS category for the whole book, based ONLY on the evidence present here.\n- If rating > 0, extract EXACTLY 5 passages (short excerpts, 1-4 sentences each) that justify the rating.\n- Each excerpt must include enough surrounding context to avoid false positives.\n- Each excerpt object MUST include both "excerpt" and "explanation" as non-empty strings; omitting either will invalidate the evidence.\n- If rating == 0, return excerpts: [] and explain that no meaningful results were found.${scopeBlock}\nReturn ONLY JSON:\n{\n  \"category\": \"${params.category}\",\n  \"rating\": 0,\n  \"rationale\": \"...\",\n  \"excerpts\": [\n    {\"excerpt\":\"...\",\"explanation\":\"...\",\"locationHint\":\"Chapter 4\"}\n  ]\n}\n\nFor each excerpt, locationHint is optional: use a chapter or section label if the quoted text or nearby lines name it (e.g. \"Ch. 12\", \"Epilogue\"). Never use the word \"chunk\". Omit locationHint if the passage does not indicate chapter/section.\n\nTRANSCRIPT EVIDENCE:\n${joined}`;
 
-  const res = await grokJson<any>(prompt, { maxTokens: 2500, temperature: 0.2, timeoutMs: 70000 });
+  const res = await grokJson<any>(prompt, {
+    maxTokens: 2500,
+    temperature: 0.2,
+    timeoutMs: 180000,
+    model: params.model,
+  });
   const rationaleText = String(res.rationale || '').trim();
   const rating = romanceRatingWithInnuendoRule(clampInt0to5(res.rating), rationaleText);
   const excerpts = Array.isArray(res.excerpts) ? res.excerpts : [];
@@ -341,6 +361,7 @@ export async function finalizeOfficialScanFromChunkScans(params: {
   isbn?: string;
   chunks: Array<{ chunkIndex: number; text: string }>;
   scans: OfficialScanChunkScanResult[];
+  model?: string;
 }): Promise<{ report: OfficialScanReport; grokAnalysis: ContentAnalysis }> {
   if (params.chunks.length === 0) {
     throw new Error('No transcript chunks found for this job.');
@@ -379,6 +400,7 @@ export async function finalizeOfficialScanFromChunkScans(params: {
         category: cat,
         candidateChunkIndexes: ranked,
         chunks: params.chunks,
+        model: params.model,
       });
     })
   );
@@ -422,7 +444,8 @@ export async function finalizeOfficialScanFromChunkScans(params: {
   const ageRaw = await grokJson<Record<string, unknown>>(agePrompt, {
     maxTokens: 3200,
     temperature: 0.2,
-    timeoutMs: 90000,
+    timeoutMs: 180000,
+    model: params.model,
   });
   const ageRecommendation = parseOfficialScanAgeRecommendationResponse(ageRaw);
   const minimumAge = normalizeOfficialScanMinimumAge(ageRecommendation.minimumAge);
@@ -472,6 +495,7 @@ export async function extractAdditionalExamplesForCategory(params: {
   existingExcerpts: OfficialScanExcerpt[];
   count?: number;
   currentRating: number;
+  model?: string;
 }): Promise<OfficialScanExcerpt[]> {
   const count = Math.max(1, Math.min(10, params.count ?? 5));
   if (params.currentRating <= 0) {
@@ -522,7 +546,12 @@ export async function extractAdditionalExamplesForCategory(params: {
 
   const prompt = `You are BookLooky's official paid transcript rater (LRS). Focus ONLY on category: ${params.category}.\n\nThe book already has an official rating of ${params.currentRating} for this category. Your job is to find EXACTLY ${count} NEW passages from the transcript that provide additional proof for this rating.\n- Each passage must be distinct from the already captured list below.\n- Each excerpt must include enough surrounding context to avoid false positives.\n- Each excerpt object MUST include both "excerpt" and "explanation" as non-empty strings.${scopeBlock}${existingBlock}\n\nReturn ONLY JSON:\n{\n  \"category\": \"${params.category}\",\n  \"excerpts\": [\n    {\"excerpt\":\"...\",\"explanation\":\"...\",\"locationHint\":\"Chapter 4\"}\n  ]\n}\n\nFor each excerpt, locationHint is optional: use a chapter or section label if the quoted text or nearby lines name it. Never use the word "chunk".\n\nTRANSCRIPT EVIDENCE:\n${joined}`;
 
-  const res = await grokJson<any>(prompt, { maxTokens: 3500, temperature: 0.2, timeoutMs: 90000 });
+  const res = await grokJson<any>(prompt, {
+    maxTokens: 3500,
+    temperature: 0.2,
+    timeoutMs: 180000,
+    model: params.model,
+  });
   const excerpts = Array.isArray(res.excerpts) ? res.excerpts : [];
   const normalized = excerpts
     .map((e: any) => ({
@@ -550,6 +579,7 @@ export async function rateTranscript(params: {
   transcript: string;
   concurrency?: number;
   onProgress?: (done: number, total: number) => void;
+  model?: string;
 }): Promise<{ report: OfficialScanReport; grokAnalysis: ContentAnalysis }> {
   const text = cleanTranscriptText(params.transcript);
   if (!text) {
@@ -565,6 +595,7 @@ export async function rateTranscript(params: {
     completedChunkIndexes: new Set(),
     timeBudgetMs: Number.MAX_SAFE_INTEGER,
     concurrency: Math.max(1, params.concurrency ?? OFFICIAL_SCAN_DEFAULT_CHUNK_SCAN_CONCURRENCY),
+    model: params.model,
     onEach: async (result) => {
       scans.push(result);
       params.onProgress?.(scans.length, chunks.length);
@@ -577,5 +608,6 @@ export async function rateTranscript(params: {
     isbn: params.isbn,
     chunks,
     scans,
+    model: params.model,
   });
 }

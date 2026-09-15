@@ -3,10 +3,10 @@
  *
  * Configure via environment:
  *   GROK_API_KEY          — required
- *   GROK_MODEL_REASONING  — optional, defaults to grok-4.3
+ *   GROK_MODEL_REASONING  — optional, defaults to grok-4.6 (official transcript rater)
  */
 
-export const GROK_MODEL_REASONING = process.env.GROK_MODEL_REASONING ?? 'grok-4.3';
+export const GROK_MODEL_REASONING = process.env.GROK_MODEL_REASONING ?? 'grok-4.6';
 
 type GrokResponse = {
   choices: Array<{ message: { content: string } }>;
@@ -23,11 +23,6 @@ function getGrokApiKey(): string {
 /** Max chars of an upstream error body to include in thrown Errors / logs. */
 const GROK_ERROR_BODY_MAX_CHARS = 400;
 
-/**
- * Security best practice: never append full upstream API error bodies to thrown
- * Errors. Providers may return large or unexpected payloads; truncating keeps
- * failures debuggable without flooding logs or leaking excess detail.
- */
 function summarizeGrokErrorBody(body: string): string {
   const raw = String(body || '').replace(/\s+/g, ' ').trim();
   if (!raw) return '';
@@ -58,15 +53,8 @@ function summarizeGrokErrorBody(body: string): string {
     : raw;
 }
 
-/** Cap model message content before parsing to bound memory / DoS from huge replies. */
 const GROK_CONTENT_MAX_CHARS = 200_000;
 
-/**
- * Security best practice: do not use a greedy `/\{[\s\S]*\}/` regex on model
- * output (it spans from the first `{` to the last `}` and can over-read huge
- * or malformed payloads). Prefer direct JSON.parse, then a brace-balanced
- * extraction of the first object only.
- */
 function extractJsonObjectText(content: string): string {
   let text = String(content || '').trim();
   if (!text) {
@@ -78,7 +66,6 @@ function extractJsonObjectText(content: string): string {
     );
   }
 
-  // Models sometimes wrap JSON in markdown fences despite the system prompt.
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
   if (fenced?.[1]) {
     text = fenced[1].trim();
@@ -142,49 +129,64 @@ function parseGrokJsonContent<T>(content: string): T {
 
 export async function grokJson<T>(
   prompt: string,
-  opts?: { maxTokens?: number; temperature?: number; timeoutMs?: number }
+  opts?: { maxTokens?: number; temperature?: number; timeoutMs?: number; model?: string }
 ): Promise<T> {
   const apiKey = getGrokApiKey();
-  const controller = new AbortController();
   const timeoutMs = opts?.timeoutMs ?? 60000;
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const model = opts?.model || GROK_MODEL_REASONING;
+  const attempts = 2;
+  let lastError: unknown;
 
-  try {
-    const res = await fetch('https://api.x.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: GROK_MODEL_REASONING,
-        messages: [
-          {
-            role: 'system',
-            content: 'Return ONLY valid JSON. Do not wrap in markdown fences. No extra text.',
-          },
-          { role: 'user', content: prompt },
-        ],
-        max_tokens: opts?.maxTokens ?? 2500,
-        temperature: opts?.temperature ?? 0.2,
-      }),
-      signal: controller.signal,
-    });
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: 'system',
+              content: 'Return ONLY valid JSON. Do not wrap in markdown fences. No extra text.',
+            },
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: opts?.maxTokens ?? 2500,
+          temperature: opts?.temperature ?? 0.2,
+        }),
+        signal: controller.signal,
+      });
 
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      const detail = summarizeGrokErrorBody(body);
-      throw new Error(
-        detail
-          ? `Grok API error: ${res.status} ${res.statusText} — ${detail}`
-          : `Grok API error: ${res.status} ${res.statusText}`
-      );
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        const detail = summarizeGrokErrorBody(body);
+        throw new Error(
+          detail
+            ? `Grok API error: ${res.status} ${res.statusText} — ${detail}`
+            : `Grok API error: ${res.status} ${res.statusText}`
+        );
+      }
+
+      const data = (await res.json()) as GrokResponse;
+      const text = data.choices?.[0]?.message?.content ?? '';
+      return parseGrokJsonContent<T>(text);
+    } catch (error) {
+      lastError = error;
+      const aborted =
+        (error instanceof Error && error.name === 'AbortError') ||
+        (error instanceof Error && /aborted/i.test(error.message));
+      if (!aborted || attempt === attempts) {
+        throw error;
+      }
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = (await res.json()) as GrokResponse;
-    const text = data.choices?.[0]?.message?.content ?? '';
-    return parseGrokJsonContent<T>(text);
-  } finally {
-    clearTimeout(timeout);
   }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }

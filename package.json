@@ -1,6 +1,6 @@
 {
   "name": "@booklooky/official-lrs-rater",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "BookLooky's official transcript-based Looky Rating System (LRS) rater — evidence-backed content ratings and age recommendations for full book transcripts.",
   "license": "MIT",
   "type": "commonjs",
@@ -13,6 +13,7 @@
     "dist",
     "docs",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "engines": {
@@ -20,6 +21,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node dist/age-bands.test.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build"
   },

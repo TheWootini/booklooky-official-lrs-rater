@@ -39,7 +39,7 @@ export type OfficialScanAgeReason = {
 };
 
 export type OfficialScanAgeRecommendation = {
-  /** Single minimum age in years (e.g. 10 → 10+). Flexible 0–25, not bucket-locked. */
+  /** Minimum age band (1, 4, 8, 13, or 18 → displayed as 1+, 4+, …). */
   minimumAge: number;
   marketCategory: string;
   confidence: 'high' | 'medium' | 'low';

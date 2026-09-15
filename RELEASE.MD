@@ -9,7 +9,7 @@ PATCH: Bug fixes
 Release Steps
 
 Prepare changes
-Update changelog (if we add one later)
+Update CHANGELOG.md
 Ensure all tests pass
 Update version in package.json
 

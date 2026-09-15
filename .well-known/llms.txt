@@ -24,6 +24,7 @@ Important notes for agents:
 - [CLI](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/cli/lrs-scan.ts): `lrs-scan` command-line entry
 - [Analyzer](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/analyzer.ts): Segment scan → category focus → finalize pipeline
 - [Scoring rules](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/scoring-rules.ts): Deterministic post-processing (e.g. innuendo → romance)
+- [Age bands](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/age-bands.ts): 1+/4+/8+/13+/18+ normalization and display
 - [Age recommendation](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/age-recommendation.ts): Five-part minimum-age pass
 - [Grok client](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/src/grok-client.ts): xAI chat-completions JSON helper
 

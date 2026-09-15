@@ -8,7 +8,7 @@ Given a full book transcript, it produces an evidence-backed content report:
   - **Content Intensity:** Violence, Love & Romance, Mental Health, Language, Substance Use, Fear / Horror
   - **Story Themes:** Fantasy / Supernatural, LGBTQ+ Representation, Sci-Fi / Futuristic, Disability & Neurodiversity
 - **Quoted transcript excerpts** justifying every non-zero rating (a non-zero score with no verifiable excerpt is downgraded to 0)
-- **A minimum-age recommendation** (e.g. `10+`) with a five-part, evidence-based justification
+- **A minimum-age recommendation** on fixed bands (`1+`, `4+`, `8+`, `13+`, `18+`) with a five-part, evidence-based justification
 
 ## Scope
 
@@ -56,11 +56,12 @@ const { report, grokAnalysis } = await rateTranscript({
   title: 'Book Title',
   author: 'Author Name',
   transcript: fullBookText,
+  model: process.env.GROK_MODEL_REASONING, // optional; default grok-4.6
 });
 
 console.log(report.ratings.violence.rating);       // 0–5
 console.log(report.ratings.violence.excerpts);     // quoted evidence
-console.log(report.minimumAge);                    // e.g. 10
+console.log(report.minimumAge);                    // 1, 4, 8, 13, or 18
 console.log(report.ageRecommendation?.reasons);    // five-part justification
 ```
 
@@ -71,14 +72,14 @@ For long books in serverless or resumable environments, the phases are also expo
 | Environment variable | Purpose | Default |
 |---|---|---|
 | `GROK_API_KEY` | xAI API key (required) | — |
-| `GROK_MODEL_REASONING` | Model used for all passes | `grok-4.3` |
+| `GROK_MODEL_REASONING` | Model used for all passes | `grok-4.6` |
 
 ## Output shape
 
 ```jsonc
 {
   "report": {
-    "minimumAge": 10,
+    "minimumAge": 13,
     "confidence": 0.85,                 // 0–1
     "reasoningSummary": "…",
     "ratings": {
@@ -95,8 +96,8 @@ For long books in serverless or resumable environments, the phases are also expo
       // … all 10 categories
     },
     "ageRecommendation": {
-      "minimumAge": 10,
-      "marketCategory": "Middle Grade (10+)",
+      "minimumAge": 13,
+      "marketCategory": "13+",
       "confidence": "high",
       "reasons": [ { "title": "Protagonist age & voice", "text": "…" } /* ×5 */ ],
       "detailedJustification": "…",
@@ -107,7 +108,7 @@ For long books in serverless or resumable environments, the phases are also expo
     "violence": 3, "romance": 1, "mentalHealth": 2, "fantasy": 4,
     "language": 0, "substanceUse": 0, "lgbtq": 0, "fear": 2,
     "sciFi": 0, "disability": 0,
-    "confidence": 0.85, "reasoning": "…", "minimumAge": 10, "ageSource": "ai"
+    "confidence": 0.85, "reasoning": "…", "minimumAge": 13, "ageSource": "ai"
   }
 }
 ```

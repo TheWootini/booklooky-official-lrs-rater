@@ -3,6 +3,7 @@ export * from './categories';
 export * from './constants';
 export * from './scoring-rules';
 export * from './transcript';
+export * from './age-bands';
 export * from './age-recommendation';
 export * from './report-utils';
 export * from './analyzer';

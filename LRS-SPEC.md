@@ -46,7 +46,7 @@ These measure **plot prominence / centrality** (not warnings).
 - Exactly 5 supporting excerpts are selected for each non-zero rating in the final report.
 
 ## Age Recommendation
-A minimum age (e.g. 10+) is calculated using a five-part framework:
+A minimum age band (1+, 4+, 8+, 13+, or 18+) is calculated using a five-part framework:
 1. Protagonist age & voice
 2. Content Intensity (LRS scores)
 3. Tone & thematic maturity
