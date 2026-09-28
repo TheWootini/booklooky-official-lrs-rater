@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import type { OfficialScanCategoryKey } from './types';
 
 /** How strong or frequent sensitive content is. */

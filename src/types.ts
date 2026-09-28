@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Core types for the Looky Rating System (LRS) official transcript rater.
  *

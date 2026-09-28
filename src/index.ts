@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 export * from './types';
 export * from './categories';
 export * from './constants';

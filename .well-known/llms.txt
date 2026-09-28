@@ -37,6 +37,6 @@ Important notes for agents:
 
 ## Optional
 
-- [LICENSE (MIT)](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/LICENSE): Code license; trademarks are not licensed
+- [LICENSE (MIT)](https://raw.githubusercontent.com/TheWootini/booklooky-official-lrs-rater/main/LICENSE.md): Software license (SPDX MIT). Documentation is CC BY 4.0. Brand names are not licensed.
 - [GitHub repository](https://github.com/TheWootini/booklooky-official-lrs-rater): Issues, source, releases
 - [llms.txt specification](https://llmstxt.org/): Format this file follows

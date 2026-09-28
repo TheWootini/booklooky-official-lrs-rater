@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { OFFICIAL_SCAN_CATEGORY_LABELS } from './categories';
 import {
   LRS_AGE_BANDS,

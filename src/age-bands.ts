@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Shared LRS age bands for official transcript scans.
  * Display is age-only (1+, 4+, 8+, 13+, 18+).

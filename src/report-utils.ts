@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { OFFICIAL_SCAN_CATEGORIES } from './categories';
 import {
   ensureReportAgeRecommendation,

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://booklooky.com
+    about: Report privately via the booklooky.com contact form (Security). Do not file a public issue.
+  - name: BookLooky.com product support
+    url: https://booklooky.com
+    about: Accounts, official scans, badges, and the public catalog are not handled in this repository.

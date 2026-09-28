@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { grokJson } from './grok-client';
 import { romanceRatingWithInnuendoRule } from './scoring-rules';
 import {

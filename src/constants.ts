@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /** Tuning constants for transcript chunking and category extraction. */
 
 /**

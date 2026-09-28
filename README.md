@@ -14,6 +14,17 @@ Given a full book transcript, it produces an evidence-backed content report:
 
 This repository implements BookLooky's **official transcript-based rater only**. It does not include the metadata-based quick-scan used on booklooky.com when users search a title and click Scan Now — that is a separate, private system. Official BookLooky-certified ratings and LRS badges are issued only through [booklooky.com](https://booklooky.com).
 
+### Higher education
+
+The same catalog and transcript rater used by families, K–12 schools, and public libraries apply in higher education when the job is **informed selection**, not censorship:
+
+- **University and college libraries** — collection development, reserves, and helping students preview intensity before checkout
+- **Faculty and instructional designers** — choosing course texts when content intensity or theme prominence matters for the syllabus
+- **Campus accessibility and disability services** — pairing ratings and age bands with other accommodations (the rater itself is a Node CLI/library, not an accessible reading app)
+- **Institutional procurement / IT** — evaluating the MIT-licensed engine separately from the hosted BookLooky.com service
+
+BookLooky is not a government or MPAA-style rating authority. LRS is age bands plus 0–5 content intensity and theme prominence.
+
 ## How it works
 
 The rater runs three phases over a transcript:
@@ -26,8 +37,12 @@ See [docs/LRS-SPEC.md](docs/LRS-SPEC.md) for the category definitions and rating
 
 ## Requirements
 
-- Node.js 18+
+- Node.js **18+** (we test 18, 20, and 22 in CI). Dropping a major line will be announced in the changelog before a release that requires a newer runtime.
 - An [xAI API key](https://docs.x.ai/) (`GROK_API_KEY`)
+
+## Language and internationalization
+
+The CLI, model prompts, and JSON reports are **English-only**. There is no localization workflow in this repository. Multilingual content summaries, if offered, are a BookLooky.com product feature — not implemented here.
 
 ## CLI usage
 
@@ -128,14 +143,20 @@ On GitHub these are available as raw files under `main`. If you later host this 
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [GOVERNANCE.md](GOVERNANCE.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md), [SUPPORT.md](SUPPORT.md), and [GOVERNANCE.md](GOVERNANCE.md).
 
-Pull requests use a [Contributor License Agreement](CLA.md). The CLA Assistant GitHub Action will comment on your PR with signing instructions.
+Pull requests use a [Contributor License Agreement](CLA.md). The CLA Assistant GitHub Action will comment on your PR with signing instructions. Contributions of source code are MIT; documentation contributions are CC BY 4.0 unless stated otherwise.
 
-## Trademark
+## Brand names
 
-"BookLooky", "Looky Rating System", "LRS", and the Certified LRS Badge are trademarks of BookLooky. This code is MIT-licensed; the trademarks are not. Ratings produced by running this tool yourself are not official BookLooky ratings.
+“BookLooky”, “Looky Rating System”, “LRS”, and the Certified LRS Badge are **brand names** of BookLooky. They are **not** licensed under MIT or CC BY 4.0. They are **not currently registered trademarks**; USPTO filing is planned. You may say that a fork is derived from this MIT-licensed rater. You may not present self-run output as official BookLooky ratings or use the Certified LRS Badge.
+
+Ratings produced by running this tool yourself are not official BookLooky ratings.
 
 ## License
 
-[MIT](LICENSE.md)
+Unless otherwise noted, software source code in this repository is licensed under the [MIT License](LICENSE.md) (SPDX: `MIT`). Copyright (c) 2026 BookLooky.
+
+Documentation, manuals, guides, and other textual educational materials are licensed under [CC BY 4.0](docs/LICENSE.md) (SPDX: `CC-BY-4.0`).
+
+Third-party development dependencies are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

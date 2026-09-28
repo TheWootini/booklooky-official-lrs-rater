@@ -1,5 +1,7 @@
 # The Looky Rating System (LRS)
 
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+
 The Looky Rating System rates books across **10 categories** on a **0–5 scale**, split into two groups:
 
 - **Content Intensity** (6 categories) — how strong or frequent sensitive content is

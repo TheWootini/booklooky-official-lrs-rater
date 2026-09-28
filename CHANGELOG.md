@@ -2,6 +2,23 @@
 
 All notable changes to `@booklooky/official-lrs-rater` are documented here.
 
+## [0.2.1] - 2026-09-28
+
+### Added
+
+- SPDX `MIT` identifiers on TypeScript sources; documentation licensed CC BY 4.0 (`docs/LICENSE.md`).
+- `THIRD_PARTY_NOTICES.md`, `SUPPORT.md`, and `DECISIONS.md`.
+- CI `npm audit` and Node.js 18/20/22 test matrix.
+- Issue templates with labels and a two-business-day acknowledgement target.
+
+### Changed
+
+- README license, brand-name (not registered-trademark) wording, Node support, English-only note, and higher-education use cases.
+- CONTRIBUTING.md requires the CLA; CLA.md links to `LICENSE.md`.
+- `package.json` `files` includes `LICENSE.md`; repository URL points at `TheWootini/booklooky-official-lrs-rater`.
+
+[0.2.1]: https://github.com/TheWootini/booklooky-official-lrs-rater/releases/tag/v0.2.1
+
 ## [0.2.0] - 2026-09-15
 
 ### Changed

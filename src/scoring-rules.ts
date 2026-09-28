@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Deterministic post-processing rules applied on top of model output.
  */

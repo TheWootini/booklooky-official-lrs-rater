@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: MIT
 /**
  * lrs-scan — run the official LRS transcript rater on a plain-text book transcript.
  *

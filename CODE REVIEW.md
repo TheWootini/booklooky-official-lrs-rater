@@ -9,7 +9,7 @@ All changes to the BookLooky Official LRS Rater go through a structured review b
    - Provide a clear description of what was changed and why.
 
 2. **Automated Checks**  
-   - GitHub Actions will run basic tests and linting (when implemented).
+   - GitHub Actions runs install, `npm audit`, build, and tests on Node.js 18, 20, and 22.
 
 3. **Review**  
    - All pull requests are reviewed by Jon Penneman (Project Lead) or a designated maintainer.
@@ -31,4 +31,4 @@ All changes to the BookLooky Official LRS Rater go through a structured review b
 
 This process will evolve as the contributor community grows.
 
-Last updated: July 2026
+Last updated: September 2026

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Minimal xAI (Grok) chat-completions client returning parsed JSON.
  *

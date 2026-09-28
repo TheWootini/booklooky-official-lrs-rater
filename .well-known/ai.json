@@ -6,6 +6,7 @@
   "repository": "https://github.com/TheWootini/booklooky-official-lrs-rater",
   "package": "@booklooky/official-lrs-rater",
   "license": "MIT",
+  "documentation_license": "CC-BY-4.0",
   "requires": {
     "node": ">=18",
     "env": ["GROK_API_KEY"]

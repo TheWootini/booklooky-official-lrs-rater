@@ -1,0 +1,18 @@
+name: Feature or docs
+description: An enhancement or documentation fix for this rater
+title: ''
+labels: [enhancement]
+assignees:
+  - TheWootini
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: What should change?
+      description: Describe the improvement. Core LRS methodology changes need Project Lead approval first — open a discussion issue before a PR.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it helps

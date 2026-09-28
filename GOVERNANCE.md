@@ -1,7 +1,7 @@
 # BookLooky Governance
 
 ## Overview
-BookLooky provides free spoiler-free book content ratings via the Looky Rating System (LRS). Core service is free for readers; authors and publishers pay for official scans and printing rights. A related nonprofit (BookLooky Literacy Foundation) supports literacy goals.
+BookLooky provides free spoiler-free book content ratings via the Looky Rating System (LRS). Looking up ratings on booklooky.com is free for readers. Authors, publishers, and institutions pay for official full-text scans and library bulk catalog processing on [booklooky.com](https://booklooky.com/libraries). BookLooky Literacy Foundation is **in formation** (not yet a registered nonprofit) and supports literacy goals; it is not an Apereo project.
 
 ## Leadership
 - **Project Lead**: Jon Penneman  
@@ -28,5 +28,7 @@ Routine technical decisions may be delegated by Jon Penneman.
 ## Evolution
 As the project grows, more decision-making authority may be delegated. Succession planning will be developed in later phases.
 
-Last updated: July 2026  
+Significant decisions are recorded in [DECISIONS.md](DECISIONS.md). Governance will be reviewed when leadership, partnerships, or contributor volume changes materially, and at least annually.
+
+Last updated: September 2026  
 Maintained by: Jon Penneman
