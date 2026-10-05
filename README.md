@@ -155,8 +155,10 @@ Ratings produced by running this tool yourself are not official BookLooky rating
 
 ## License
 
-Unless otherwise noted, software source code in this repository is licensed under the [MIT License](LICENSE.md) (SPDX: `MIT`). Copyright (c) 2026 BookLooky.
+Unless otherwise noted, software source code in this repository is licensed under the [MIT License](LICENSE) (SPDX: `MIT`). `LICENSE.md` is the same text. Copyright (c) 2026 BookLooky. See [NOTICE](NOTICE).
 
 Documentation, manuals, guides, and other textual educational materials are licensed under [CC BY 4.0](docs/LICENSE.md) (SPDX: `CC-BY-4.0`).
 
 Third-party development dependencies are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Project records: [TRADEMARK-SEARCH.md](TRADEMARK-SEARCH.md), [CONFLICT-RESOLUTION.md](CONFLICT-RESOLUTION.md), [ETHICAL-OS-REVIEW.md](ETHICAL-OS-REVIEW.md), [ALIGNMENT.md](ALIGNMENT.md), [COMMUNITY-HEALTH.md](COMMUNITY-HEALTH.md).

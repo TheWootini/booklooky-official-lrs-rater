@@ -5,20 +5,19 @@ BookLooky provides free spoiler-free book content ratings via the Looky Rating S
 
 ## Leadership
 - **Project Lead**: Jon Penneman  
-  Final approval authority on all major decisions, strategy, releases, partnerships, and policy.
+  Final approval authority on ordinary project decisions, strategy, releases, partnerships, and policy.
 
-## Roles
-- Project Lead (Jon Penneman) – overall direction and final decisions
-- Technical Lead – code, releases, architecture (appointed by Jon Penneman)
-- Community Lead – contributors, adoption, documentation (appointed by Jon Penneman)
+There is no Technical Lead and no Community Lead. Those seats were removed on 5 October 2026 because nobody occupied them. They can be added again when a second person actually holds the role.
 
 ## Decision Making
-1. Proposals can be submitted by anyone (GitHub issues, forum, or email).
+1. Proposals can be submitted by anyone (GitHub issues or GitHub discussions).
 2. Open discussion period.
-3. Jon Penneman makes the final decision.
+3. Jon Penneman makes the final decision on ordinary proposals.
 4. Decisions are recorded publicly.
 
-Routine technical decisions may be delegated by Jon Penneman.
+A dispute, including any dispute in which the Project Lead is a party, follows [CONFLICT-RESOLUTION.md](CONFLICT-RESOLUTION.md). The Project Lead does not settle that dispute by declaring his own view final.
+
+Routine technical decisions may be made by Jon Penneman.
 
 ## Community & Contributions
 - Discussions are public and transparent.
@@ -30,5 +29,5 @@ As the project grows, more decision-making authority may be delegated. Successio
 
 Significant decisions are recorded in [DECISIONS.md](DECISIONS.md). Governance will be reviewed when leadership, partnerships, or contributor volume changes materially, and at least annually.
 
-Last updated: September 2026  
+Last updated: October 2026  
 Maintained by: Jon Penneman

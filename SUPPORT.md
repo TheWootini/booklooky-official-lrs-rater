@@ -11,6 +11,8 @@ official-certification pipeline.
 | Bug in this rater (CLI, library, scoring helpers, docs in this repo) | [GitHub Issues](https://github.com/TheWootini/booklooky-official-lrs-rater/issues) using the bug template |
 | Feature idea or docs fix for this rater | GitHub Issues (`enhancement` or `docs`) |
 | How to run or integrate the rater | GitHub Issues (`question`) |
+| Open-ended project discussion that is not a defect | [GitHub Discussions](https://github.com/TheWootini/booklooky-official-lrs-rater/discussions) |
+| A dispute about a project decision | [CONFLICT-RESOLUTION.md](CONFLICT-RESOLUTION.md), raised in Issues or Discussions |
 | Product, ratings on booklooky.com, accounts, billing | [booklooky.com contact](https://booklooky.com) |
 | Security vulnerability | [SECURITY.MD](SECURITY.MD) — private report only, not a public issue |
 | School/library bulk catalog processing | Paid institutional service on [booklooky.com/libraries](https://booklooky.com/libraries) |
@@ -20,6 +22,8 @@ official-certification pipeline.
 The Project Lead reviews new issues. We aim to **acknowledge within two
 business days**. There is no guaranteed fix timeline while the project is
 founder-maintained.
+
+There is no project mailing list. GitHub Issues and GitHub Discussions are the public channels.
 
 ## What this repo does not support
 

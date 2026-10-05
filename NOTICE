@@ -1,0 +1,28 @@
+BookLooky Official LRS Rater
+Copyright 2026 BookLooky
+
+This software is licensed under the MIT License. See the LICENSE file
+in the root of this distribution. LICENSE.md is the same text.
+
+Documentation, manuals, guides, and other textual educational materials
+are licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+See docs/LICENSE.md.
+
+This project is not an Apereo Foundation project. The copyright notice
+above is BookLooky's. It is not a copyright notice of The Apereo Foundation.
+
+The only person who has committed code to this repository, as of
+5 October 2026, is Jon Penneman (GitHub account TheWootini, user id
+168128785). No other contributor has a commit or a merged pull request.
+No Apereo Individual Contributor License Agreement, Corporate Contributor
+License Agreement, or Software Grant License Agreement is filed by this
+NOTICE. Future external contributors sign the project CLA in CLA.md.
+
+"BookLooky", "Looky Rating System", "LRS", and the Certified LRS Badge
+are brand names of BookLooky. They are not licensed by the MIT License
+or CC BY 4.0. A federal trademark knockout search dated 5 October 2026
+is recorded in TRADEMARK-SEARCH.md. That search is not a legal opinion
+and is not a full clearance search.
+
+Third-party development tools are listed in THIRD_PARTY_NOTICES.md.
+The distributed library has no npm runtime dependencies.

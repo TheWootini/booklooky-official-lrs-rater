@@ -53,10 +53,32 @@ registration would undermine licensing clarity.
 ## 2026-09 — GitHub Releases start at v0.2.1
 
 **Decision:** Do not backfill a GitHub Release for v0.2.0. The next published
-GitHub Release will be **v0.2.1** after this HEOSAT hygiene work lands.
+GitHub Release will be **v0.2.1**.
 
 **Why:** The documented release process had not yet been executed on GitHub
-Releases. Starting cleanly at v0.2.1 avoids a retroactive empty-tag story.
+Releases. Starting at v0.2.1 avoids a retroactive release for the tag-only
+v0.2.0.
+
+## 2026-10-05 — Keep MIT
+
+**Decision:** Stay on MIT for software and CC BY 4.0 for documentation. Do not
+relicense to Apache-2.0 or ECL-2.0 in this release.
+
+**Why:** The maintainer was told MIT is acceptable for this onboarding. The
+Apereo default remains Apache-2.0 unless an exception is allowed. This file
+does not claim Board approval beyond what the maintainer reported.
+
+## 2026-10-05 — One contributor
+
+**Decision:** Record that Jon Penneman (GitHub TheWootini, user id 168128785)
+is the only person who has committed to this repository. No other ICLA is
+outstanding because no one else has contributed. An Apereo ICLA, CCLA, and
+SGLA are not filed by this commit.
+
+## 2026-10-05 — No roadmap
+
+**Decision:** Do not publish a roadmap. None exists. Future work is only what
+the changelog and this file already record.
 
 ## Follow-up (not done in this repo)
 
