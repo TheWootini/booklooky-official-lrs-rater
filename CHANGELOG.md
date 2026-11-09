@@ -2,6 +2,16 @@
 
 All notable changes to `@booklooky/official-lrs-rater` are documented here.
 
+## [Unreleased]
+
+## [0.2.2] - 2026-11-09
+
+### Added
+
+- Age band **15+** between 13+ and 18+. 14 and 15 snap to 15+. 18+ is reserved for explicit sexual content, graphic or gratuitous violence, or other hardcore adult material.
+
+[0.2.2]: https://github.com/TheWootini/booklooky-official-lrs-rater/releases/tag/v0.2.2
+
 ## [0.2.1] - 2026-10-05
 
 First GitHub Release. The 28 September 2026 hygiene work is included because it was never tagged.

@@ -8,7 +8,7 @@ Given a full book transcript, it produces an evidence-backed content report:
   - **Content Intensity:** Violence, Love & Romance, Mental Health, Language, Substance Use, Fear / Horror
   - **Story Themes:** Fantasy / Supernatural, LGBTQ+ Representation, Sci-Fi / Futuristic, Disability & Neurodiversity
 - **Quoted transcript excerpts** justifying every non-zero rating (a non-zero score with no verifiable excerpt is downgraded to 0)
-- **A minimum-age recommendation** on fixed bands (`1+`, `4+`, `8+`, `13+`, `18+`) with a five-part, evidence-based justification
+- **A minimum-age recommendation** on fixed bands (`1+`, `4+`, `8+`, `13+`, `15+`, `18+`) with a five-part, evidence-based justification
 
 ## Scope
 
@@ -76,7 +76,7 @@ const { report, grokAnalysis } = await rateTranscript({
 
 console.log(report.ratings.violence.rating);       // 0–5
 console.log(report.ratings.violence.excerpts);     // quoted evidence
-console.log(report.minimumAge);                    // 1, 4, 8, 13, or 18
+console.log(report.minimumAge);                    // 1, 4, 8, 13, 15, or 18
 console.log(report.ageRecommendation?.reasons);    // five-part justification
 ```
 

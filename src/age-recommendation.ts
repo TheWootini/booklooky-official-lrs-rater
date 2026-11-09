@@ -179,10 +179,11 @@ IMPORTANT:
   - 4 = 4+: typical picture books and early readers with a real story and more than a few words.
   - 8 = 8+: elementary / middle grade
   - 13 = 13+: teen / young adult
-  - 18 = 18+: adult / mature
+  - 15 = 15+: mature teen (stronger language, non-graphic sexual content, more intense violence, substance use)
+  - 18 = 18+: adult only. Use ONLY for explicit sexual content, graphic or gratuitous violence, or otherwise hardcore adult material
 - If you are between 8 and 13, round UP (a 12-year-old floor is 13+, not 12+).
 - Do NOT provide a maximum age or upper bound.
-- marketCategory MUST be exactly one of: "1+", "4+", "8+", "13+", "18+" (must match minimumAge).
+- marketCategory MUST be exactly one of: "1+", "4+", "8+", "13+", "15+", "18+" (must match minimumAge).
 - Apply this decision framework IN ORDER:
   1) Protagonist age & narrative voice (kids often read up 2–3 years)
   2) Content intensity — tie explicitly to the locked LRS scores

@@ -10,7 +10,7 @@ Filled from the template in Appendix 2 of the Apereo incubation process (`http:/
 
 ## Background and objectives
 
-This repository is the open-source reference implementation of BookLooky’s official transcript-based Looky Rating System (LRS) rater. Given a full plaintext transcript, it returns ten 0–5 scores and one age band (1+, 4+, 8+, 13+, or 18+), with quoted excerpts for non-zero category scores. Looking up ratings on BookLooky.com is a separate hosted service. Official BookLooky certification is not issued by running this MIT code yourself.
+This repository is the open-source reference implementation of BookLooky’s official transcript-based Looky Rating System (LRS) rater. Given a full plaintext transcript, it returns ten 0–5 scores and one age band (1+, 4+, 8+, 13+, 15+, or 18+), with quoted excerpts for non-zero category scores. Looking up ratings on BookLooky.com is a separate hosted service. Official BookLooky certification is not issued by running this MIT code yourself.
 
 The software license is MIT. Documentation is CC BY 4.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 

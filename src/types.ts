@@ -40,7 +40,7 @@ export type OfficialScanAgeReason = {
 };
 
 export type OfficialScanAgeRecommendation = {
-  /** Minimum age band (1, 4, 8, 13, or 18 → displayed as 1+, 4+, …). */
+  /** Minimum age band (1, 4, 8, 13, 15, or 18 → displayed as 1+, 4+, …). */
   minimumAge: number;
   marketCategory: string;
   confidence: 'high' | 'medium' | 'low';

@@ -72,7 +72,7 @@ The official rater reads the full book text and enforces:
 
 ## Age recommendation
 
-After all 10 category scores are locked, a single **minimum age band** is determined using a five-part framework. The model must output one of **1, 4, 8, 13, or 18** (displayed as **1+, 4+, 8+, 13+, 18+**). Values are snapped to the nearest band; ages 0–3 map to **1+**, 9–12 to **13+**, and 14–17 to **18+**. `marketCategory` uses the same age-only label (not movie-style ratings).
+After all 10 category scores are locked, a single **minimum age band** is determined using a five-part framework. The model must output one of **1, 4, 8, 13, 15, or 18** (displayed as **1+, 4+, 8+, 13+, 15+, 18+**). Values are snapped to the nearest band; ages 0–3 map to **1+**, 9–12 to **13+**, 14–15 to **15+**, and 16–17 to **18+**. **15+** is mature teen content that is not explicit. **18+** is reserved for explicit sexual content, graphic or gratuitous violence, or other hardcore adult material, not for a book merely shelved as adult fiction. `marketCategory` uses the same age-only label (not movie-style ratings).
 
 1. **Protagonist age & voice**
 2. **Content intensity (LRS)** — tied explicitly to the locked Content Intensity scores
